@@ -1,0 +1,1 @@
+cmd_/home/jochem/drvo/week-1/basic-driver/hello.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/jochem/drvo/week-1/basic-driver/hello.ko /home/jochem/drvo/week-1/basic-driver/hello.o /home/jochem/drvo/week-1/basic-driver/hello.mod.o;  true

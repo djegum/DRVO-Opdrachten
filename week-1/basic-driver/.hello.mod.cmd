@@ -1,0 +1,1 @@
+cmd_/home/jochem/drvo/week-1/basic-driver/hello.mod := printf '%s\n'   hello.o | awk '!x[$$0]++ { print("/home/jochem/drvo/week-1/basic-driver/"$$0) }' > /home/jochem/drvo/week-1/basic-driver/hello.mod

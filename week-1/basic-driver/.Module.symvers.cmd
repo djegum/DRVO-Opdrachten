@@ -1,0 +1,1 @@
+cmd_/home/jochem/drvo/week-1/basic-driver/Module.symvers := sed 's/ko$$/o/' /home/jochem/drvo/week-1/basic-driver/modules.order | scripts/mod/modpost -m -a  -o /home/jochem/drvo/week-1/basic-driver/Module.symvers -e -i Module.symvers   -T -
