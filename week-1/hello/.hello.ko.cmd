@@ -1,0 +1,1 @@
+cmd_/home/jochem/drvo/hello.ko := ld -r -m elf_x86_64 -z noexecstack --build-id=sha1  -T scripts/module.lds -o /home/jochem/drvo/hello.ko /home/jochem/drvo/hello.o /home/jochem/drvo/hello.mod.o;  true
