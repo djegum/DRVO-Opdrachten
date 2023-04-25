@@ -13,6 +13,12 @@ static const int amount = 1;
 
 static const char driver_name[] = "hello_driver";
 
+static int param_1 = 0;
+static int param_2 = 0;
+
+module_param_named(param1, param_1, int, S_IRUGO);
+module_param_named(param2, param_2, int, S_IRUGO);
+
 static int hello_open(struct inode *inode, struct file *file){
 	printk(KERN_ALERT "hello_open()\n");
 	return 0;

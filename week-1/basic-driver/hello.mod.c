@@ -36,10 +36,11 @@ __used __section("__versions") = {
 	{ 0x3fd78f3b, "register_chrdev_region" },
 	{ 0x58c36c14, "cdev_add" },
 	{ 0x6091b333, "unregister_chrdev_region" },
+	{ 0x4fa8f1f1, "param_ops_int" },
 	{ 0x541a6db8, "module_layout" },
 };
 
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "A22F5B95B7AFDD58EAAD87B");
+MODULE_INFO(srcversion, "720E0EDF1B4DB8DDCBB0A71");
