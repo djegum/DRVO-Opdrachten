@@ -9,5 +9,11 @@ echo "Running tests"
 echo "hello" > /dev/hello_dev
 cat /dev/hello_dev
 
+echo "Running C tests"
+
+gcc test.c -o test.o
+
+./test.o
+
 sudo rm /dev/hello_dev
 sudo rmmod hello
