@@ -13,7 +13,6 @@ static const char driver_name[] = "hello_driver";
 
 struct hello_device_data {
 	struct cdev cdev;
-	// More data added to this in the future...
 	char buffer[256];
 	int minor;
 };
@@ -24,7 +23,6 @@ static int param_1 = 0;
 static int param_2 = 0;
 
 static unsigned int count = 0;
-
 
 module_param_named(param1, param_1, int, S_IRUGO);
 module_param_named(param2, param_2, int, S_IRUGO);
@@ -44,35 +42,40 @@ static int hello_release(struct inode *inode, struct file *file){
 	return 0;
 }
 
-static ssize_t hello_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos){
+static ssize_t hello_read(struct file *file, char __user * user_buffer, size_t size, loff_t * offset){
 	printk("hello_read()\n");
-	struct my_device_data *my_data;
 
-    my_data = (struct my_device_data *) file->private_data;
-	
-	return 0;	
+	struct hello_device_data *my_data = (struct hello_device_data *) file->private_data;
+	ssize_t len = min(256 - *offset, size);
+
+	if (len <= 0){
+		return 0;
+	}
+
+	if (copy_to_user(user_buffer, my_data->buffer + *offset, len)){
+		return -EFAULT;
+	}
+
+	*offset += len;
+	return len;
 }
 
 static ssize_t hello_write(struct file *file, const char __user *user_buffer, size_t size, loff_t * offset){
 	printk("hello_write()\n");
 
-	int written;
+	struct hello_device_data *my_data = (struct hello_device_data *) file->private_data;
+	ssize_t len = min(256 - *offset, size);
 
-	struct hello_device_data *data = (struct hello_device_data * ) file->private_data;
-
-	if ( *offset + size > 256 ){
-		return -1;
+	if (len <= 0){
+		return 0;
 	}
-	if(copy_from_user(data->buffer + *offset, user_buffer, size)){
-		printk("Fault copying\n");
+
+	if (copy_from_user(my_data->buffer + *offset, user_buffer, len)){
 		return -EFAULT;
 	}
 
-	printk("Minor: %d\n", data->minor);
-	printk("Buffer: %s\n", data->buffer);
-
-	*offset += written;
-	return size;
+	*offset += len;
+	return len;
 }
 
 struct file_operations fops = {
