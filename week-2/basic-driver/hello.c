@@ -5,38 +5,74 @@
 #include <linux/kernel.h>
 #include <linux/fs.h>
 
-MODULE_LICENSE("Dual BSD/GPL");
+#define MAX_MINORS 5
 
-int major = 500;
-int minor = 0;
-static const int amount = 1;
+MODULE_LICENSE("Dual BSD/GPL");
 
 static const char driver_name[] = "hello_driver";
 
+struct hello_device_data {
+	struct cdev cdev;
+	// More data added to this in the future...
+	char buffer[256];
+	int minor;
+};
+
+struct hello_device_data devs[MAX_MINORS];
+
 static int param_1 = 0;
 static int param_2 = 0;
+
+static unsigned int count = 0;
+
 
 module_param_named(param1, param_1, int, S_IRUGO);
 module_param_named(param2, param_2, int, S_IRUGO);
 
 static int hello_open(struct inode *inode, struct file *file){
-	printk(KERN_ALERT "hello_open()\n");
+	count++;
+	printk("hello_open(): count %d\n", count);
+	struct hello_device_data *my_data =
+             container_of(inode->i_cdev, struct hello_device_data, cdev);
+
+    file->private_data = my_data;
 	return 0;
 }
 
 static int hello_release(struct inode *inode, struct file *file){
-	printk(KERN_ALERT "hello_release()\n");
+	printk("hello_release()\n");
 	return 0;
 }
 
 static ssize_t hello_read(struct file *file, char __user * buf, size_t lbuf, loff_t * ppos){
-	printk(KERN_ALERT "hello_read()\n");
+	printk("hello_read()\n");
+	struct my_device_data *my_data;
+
+    my_data = (struct my_device_data *) file->private_data;
+	
 	return 0;	
 }
 
-static ssize_t hello_write(struct file *file, const char __user * buf, size_t lbuf, loff_t * ppos){
-	printk(KERN_ALERT "hello_write()\n");
-	return lbuf;	
+static ssize_t hello_write(struct file *file, const char __user *user_buffer, size_t size, loff_t * offset){
+	printk("hello_write()\n");
+
+	int written;
+
+	struct hello_device_data *data = (struct hello_device_data * ) file->private_data;
+
+	if ( *offset + size > 256 ){
+		return -1;
+	}
+	if(copy_from_user(data->buffer + *offset, user_buffer, size)){
+		printk("Fault copying\n");
+		return -EFAULT;
+	}
+
+	printk("Minor: %d\n", data->minor);
+	printk("Buffer: %s\n", data->buffer);
+
+	*offset += written;
+	return size;
 }
 
 struct file_operations fops = {
@@ -47,29 +83,34 @@ struct file_operations fops = {
 	.release = hello_release
 };
 
-static struct cdev* device;
-
 dev_t dev = 0;
 
 static int hello_init(void){
-	if((alloc_chrdev_region(&dev, 0, 1, driver_name)) < 0){
-		printk(KERN_INFO "Error while initing driver");
+	if((alloc_chrdev_region(&dev, 0, MAX_MINORS, driver_name)) < 0){
+		printk("Error while initing driver");
 		return -1;
 	}
 
-	major = MAJOR(dev);
-	minor = MINOR(dev);
+	printk("Major = %d Minor = %d \n", MAJOR(dev), MINOR(dev));
+	printk("Max minors: %d\n", MAX_MINORS);
 
-	printk(KERN_INFO "Major = %d Minor = %d \n", MAJOR(dev), MINOR(dev));
-	printk(KERN_INFO "Kernel module inserted...");
+	for(int i = 0; i < MAX_MINORS; i++){
+		cdev_init(&devs[i].cdev, &fops);
+		cdev_add(&devs[i].cdev, MKDEV(MAJOR(dev), i), 1);
+		devs[i].minor = i;
+	}
+
+	printk("Kernel module inserted...");
 	return 0;
 }
 
 static void hello_exit(void){
-	dev_t device_number;
-	device_number = MKDEV(major, minor);
-	unregister_chrdev_region(device_number, amount);
-	printk(KERN_ALERT "Goodbye world\n");
+	for(int i = 0; i < MAX_MINORS; i++){
+		cdev_del(&devs[i].cdev);
+	}
+
+	unregister_chrdev_region(dev, MAX_MINORS);
+	printk("Goodbye world\n");
 }
 
 module_init(hello_init);

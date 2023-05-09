@@ -32,7 +32,13 @@ __used __section("__versions") = {
 	{ 0xbdfb6dbb, "__fentry__" },
 	{ 0x92997ed8, "_printk" },
 	{ 0x5b8239ca, "__x86_return_thunk" },
+	{ 0x88db9f48, "__check_object_size" },
+	{ 0x13c49cc2, "_copy_from_user" },
 	{ 0xe3ec2f2b, "alloc_chrdev_region" },
+	{ 0x87a21cb3, "__ubsan_handle_out_of_bounds" },
+	{ 0x4800abdd, "cdev_init" },
+	{ 0x58c36c14, "cdev_add" },
+	{ 0x8bee73ff, "cdev_del" },
 	{ 0x6091b333, "unregister_chrdev_region" },
 	{ 0x4fa8f1f1, "param_ops_int" },
 	{ 0x541a6db8, "module_layout" },
@@ -41,4 +47,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "AFADA7F7AFF950FEF1D0AFD");
+MODULE_INFO(srcversion, "9E8AA93C3709F1253B1D459");

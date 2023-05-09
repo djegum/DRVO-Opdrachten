@@ -1,7 +1,7 @@
 #!/bin/sh
 module="hello_driver"
 device="hello_dev"
-mode="666"
+mode="0666"
 
 # invoke insmod with all arguments we were passed
 # and use a pathname, as newer modutils don't look in . by default
