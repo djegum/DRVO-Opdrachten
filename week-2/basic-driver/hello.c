@@ -7,8 +7,8 @@
 
 MODULE_LICENSE("Dual BSD/GPL");
 
-static const int major = 500;
-static const int minor = 0;
+int major = 500;
+int minor = 0;
 static const int amount = 1;
 
 static const char driver_name[] = "hello_driver";
@@ -49,19 +49,20 @@ struct file_operations fops = {
 
 static struct cdev* device;
 
+dev_t dev = 0;
+
 static int hello_init(void){
-	dev_t device_number;
-	int result;
-	device_number = MKDEV(major, minor);
-	device = cdev_alloc();
-	if(device != NULL){
-		device->ops = &fops;
-		device->owner = THIS_MODULE;
+	if((alloc_chrdev_region(&dev, 0, 1, driver_name)) < 0){
+		printk(KERN_INFO "Error while initing driver");
+		return -1;
 	}
-	result = register_chrdev_region(device_number, amount, driver_name);
-	cdev_add(device, device_number, amount);
-	printk(KERN_ALERT "Hello world\n");
-	return result;
+
+	major = MAJOR(dev);
+	minor = MINOR(dev);
+
+	printk(KERN_INFO "Major = %d Minor = %d \n", MAJOR(dev), MINOR(dev));
+	printk(KERN_INFO "Kernel module inserted...");
+	return 0;
 }
 
 static void hello_exit(void){
