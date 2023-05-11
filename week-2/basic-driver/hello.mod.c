@@ -39,8 +39,10 @@ __used __section("__versions") = {
 	{ 0x87a21cb3, "__ubsan_handle_out_of_bounds" },
 	{ 0x4800abdd, "cdev_init" },
 	{ 0x58c36c14, "cdev_add" },
+	{ 0x92d5838e, "request_threaded_irq" },
 	{ 0x8bee73ff, "cdev_del" },
 	{ 0x6091b333, "unregister_chrdev_region" },
+	{ 0xc1514a3b, "free_irq" },
 	{ 0x4fa8f1f1, "param_ops_int" },
 	{ 0x541a6db8, "module_layout" },
 };
@@ -48,4 +50,4 @@ __used __section("__versions") = {
 MODULE_INFO(depends, "");
 
 
-MODULE_INFO(srcversion, "BE50762C5BA1799C78AD860");
+MODULE_INFO(srcversion, "3EE1D76878205DF46D7D0AC");

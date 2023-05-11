@@ -4,6 +4,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
+#include <linux/interrupt.h>
 
 #define MAX_MINORS 5
 
@@ -78,15 +79,49 @@ static ssize_t hello_write(struct file *file, const char __user *user_buffer, si
 	return len;
 }
 
+loff_t hello_seek(struct file *filp, loff_t off, int whence){
+	printk("hello_seek()");
+	struct hello_device_data *dev = filp->private_data;
+	loff_t newpos;
+
+	switch(whence) {
+		case 0: /* SEEK_SET */
+			newpos = off;
+			break;
+
+		case 1: /* SEEK_CUR */
+			newpos = filp->f_pos + off;
+			break;
+
+		case 2: /* SEEK_END */
+			newpos = 256 + off;
+			break;
+
+		default: /* can't happen */
+			return -EINVAL;
+	}
+	if (newpos<0) return -EINVAL;
+	filp->f_pos = newpos;
+	return newpos;
+}
+
 struct file_operations fops = {
 	.owner = THIS_MODULE,
 	.read = hello_read,
 	.write = hello_write,
 	.open = hello_open,
-	.release = hello_release
+	.release = hello_release,
+	.llseek = hello_seek
 };
 
 dev_t dev = 0;
+
+irqreturn_t (*handler)(int irq_no, void *dev_id);
+
+irqreturn_t my_handler(int irq_no, void *dev_id){
+	printk("INTERRUPT!!!\n");
+    return IRQ_HANDLED;
+}
 
 static int hello_init(void){
 	if((alloc_chrdev_region(&dev, 0, MAX_MINORS, driver_name)) < 0){
@@ -104,6 +139,8 @@ static int hello_init(void){
 	}
 
 	printk("Kernel module inserted...");
+
+	request_irq(19, my_handler, IRQF_SHARED, "enp0s3", (void*) (*my_handler));
 	return 0;
 }
 
@@ -113,6 +150,8 @@ static void hello_exit(void){
 	}
 
 	unregister_chrdev_region(dev, MAX_MINORS);
+
+	free_irq(19, (void*) (*my_handler));
 	printk("Goodbye world\n");
 }
 
