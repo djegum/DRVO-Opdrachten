@@ -41,7 +41,7 @@ uint32_t oe;
 
 static int led_driver_open(struct inode *inode, struct file *file){
 	count++;
-	printk("led_driver_open(): count %d\n", count);
+	printk(KERN_INFO "led_driver: Opening (count %d)....\n", count);
 	struct led_driver_device_data *my_data =
              container_of(inode->i_cdev, struct led_driver_device_data, cdev);
 
@@ -50,12 +50,12 @@ static int led_driver_open(struct inode *inode, struct file *file){
 }
 
 static int led_driver_release(struct inode *inode, struct file *file){
-	printk("led_driver_release()\n");
+	printk(KERN_INFO "led_driver: Releasing....\n");
 	return 0;
 }
 
 static ssize_t led_driver_read(struct file *file, char __user * user_buffer, size_t size, loff_t * offset){
-	printk("led_driver_read()\n");
+	printk(KERN_INFO "led_driver: Reading....\n");
 
 	struct led_driver_device_data *my_data = (struct led_driver_device_data *) file->private_data;
 	ssize_t len = min(256 - *offset, size);
@@ -64,13 +64,19 @@ static ssize_t led_driver_read(struct file *file, char __user * user_buffer, siz
 		return 0;
 	}
 
-    // if (user_buffer[0] == '0'){
-    //     printk(KERN_INFO "LED OFF\n");
-    // }else if(user_buffer[0] == '1'){
-    //     printk(KERN_INFO "LED ON\n");
-    // }else{
-    //     printk(KERN_INFO "LED UNKNOWN\n");
-    // }
+	int state = -1;
+
+	gpio1 = ioremap(GPIO1_ADDR, GPIO_MAX);
+	barrier();
+	state = ioread32( gpio1 + GPIO_DATAIN );
+
+	rmb();
+	iounmap(gpio1);
+
+	state &= (1<<PIN);
+	state = state >> PIN;
+
+	sprintf(my_data->buffer, "%d\n", state);
 
 	if (copy_to_user(user_buffer, my_data->buffer + *offset, len)){
 		return -EFAULT;
@@ -81,7 +87,7 @@ static ssize_t led_driver_read(struct file *file, char __user * user_buffer, siz
 }
 
 static ssize_t led_driver_write(struct file *file, const char __user *user_buffer, size_t size, loff_t * offset){
-	printk("led_driver_write()\n");
+	printk(KERN_INFO "led_driver: Writing....\n");
 
 	struct led_driver_device_data *my_data = (struct led_driver_device_data *) file->private_data;
 	ssize_t len = min(256 - *offset, size);
@@ -94,26 +100,16 @@ static ssize_t led_driver_write(struct file *file, const char __user *user_buffe
 		return -EFAULT;
 	}
 
-
-	gpio1 = ioremap( GPIO1_ADDR, GPIO_MAX * sizeof(uint32_t) );
-    barrier();
-    oe = ioread32( gpio1 + GPIO_OE );
-    rmb();
-    iowrite32( (oe & (~(1<<PIN))), gpio1 + GPIO_OE );
-    wmb(); // write memory barrier
-    iounmap(gpio1);
-
 	gpio1 = ioremap(GPIO1_ADDR, GPIO_MAX);
 	long input = -1;
 	int ret = kstrtol(my_data->buffer, 0, &input);
-	printk(KERN_INFO "%d\n", input);
 	barrier();
 	if(input == 1){
     	iowrite32( (1<<PIN), gpio1 + GPIO_SETDATAOUT ); // Pin 19 aan
-		printk(KERN_INFO "ON\n");
+		printk(KERN_INFO "led_driver: ON\n");
 	}else if(input == 0){
     	iowrite32( (1<<PIN), gpio1 + GPIO_CLEARDATAOUT ); // Pin 19 uit
-		printk(KERN_INFO "OFF\n");
+		printk(KERN_INFO "led_driver: OFF\n");
 	}
 	wmb(); // write memory barrier
 	iounmap(gpio1);
@@ -152,14 +148,13 @@ static int led_driver_init(void) {
 	oe = ioread32( gpio1 + GPIO_OE );
 	rmb();
 	iowrite32( (oe & (~(1<<PIN))), gpio1 + GPIO_OE );
-	wmb(); // write memory barrier
+	wmb();
 	iounmap(gpio1);
-	/* ledje aan en uit zetten */
+
 	gpio1 = ioremap(GPIO1_ADDR, GPIO_MAX);
 	barrier();
-	// iowrite32( (1<<PIN), gpio1 + GPIO_SETDATAOUT ); // Pin 19 aan
-	iowrite32( (1<<PIN), gpio1 + GPIO_CLEARDATAOUT ); // Pin 19 uit
-	wmb(); // write memory barrier
+	iowrite32( (1<<PIN), gpio1 + GPIO_CLEARDATAOUT );
+	wmb();
 	iounmap(gpio1);
 
 	printk(KERN_INFO "led_driver: Kernel module inserted...");
@@ -174,7 +169,7 @@ static void led_driver_exit(void) {
 
 	unregister_chrdev_region(dev, MAX_MINORS);
 
-	printk(KERN_INFO "led_driver: Goodbye world\n");
+	printk(KERN_INFO "led_driver: Exiting driver...\n");
 }
 
 module_init(led_driver_init);
