@@ -4,21 +4,16 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/fs.h>
-#include <linux/interrupt.h>
 #include <linux/ioport.h>
 #include <linux/io.h>
 #include <linux/uaccess.h>
 
-/* PIN */
 #define PIN 19
-/* base address */
 #define GPIO1_ADDR 0x4804c000
-/* register offsets in uint32_t sizes */
 #define GPIO_OE 0x4D // 0x134
 #define GPIO_DATAIN 0x4E // 0x138
 #define GPIO_CLEARDATAOUT 0x64 // 0x190
 #define GPIO_SETDATAOUT 0x65 // 0x194
-/* max size in bytes */
 #define GPIO_MAX 0x198
 
 #define MAX_MINORS 1
@@ -106,10 +101,10 @@ static ssize_t led_driver_write(struct file *file, const char __user *user_buffe
 	barrier();
 	if(input == 1){
     	iowrite32( (1<<PIN), gpio1 + GPIO_SETDATAOUT ); // Pin 19 aan
-		printk(KERN_INFO "led_driver: ON\n");
+		printk(KERN_INFO "led_driver: turing ON\n");
 	}else if(input == 0){
     	iowrite32( (1<<PIN), gpio1 + GPIO_CLEARDATAOUT ); // Pin 19 uit
-		printk(KERN_INFO "led_driver: OFF\n");
+		printk(KERN_INFO "led_driver: turning OFF\n");
 	}
 	wmb(); // write memory barrier
 	iounmap(gpio1);
