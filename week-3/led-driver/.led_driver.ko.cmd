@@ -1,0 +1,1 @@
+cmd_/home/debian/drvo-opdrachten/week-3/led-driver/led_driver.ko := ld -r  -EL -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds  --build-id  -o /home/debian/drvo-opdrachten/week-3/led-driver/led_driver.ko /home/debian/drvo-opdrachten/week-3/led-driver/led_driver.o /home/debian/drvo-opdrachten/week-3/led-driver/led_driver.mod.o ;  true

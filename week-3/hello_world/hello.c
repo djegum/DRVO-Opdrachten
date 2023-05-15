@@ -17,6 +17,5 @@ static void __exit helloBBB_exit(void){
    printk(KERN_INFO "EBB: Goodbye %s from the BBB LKM!\n", name);
 }
 
-
 module_init(helloBBB_init);
 module_exit(helloBBB_exit);
