@@ -1,0 +1,1 @@
+cmd_/home/debian/drvo-opdrachten/week-3/hello_world/hello.ko := ld -r  -EL -T ./scripts/module-common.lds -T ./arch/arm/kernel/module.lds  --build-id  -o /home/debian/drvo-opdrachten/week-3/hello_world/hello.ko /home/debian/drvo-opdrachten/week-3/hello_world/hello.o /home/debian/drvo-opdrachten/week-3/hello_world/hello.mod.o ;  true
