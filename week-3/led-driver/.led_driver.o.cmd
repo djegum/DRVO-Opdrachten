@@ -698,29 +698,6 @@ deps_/home/debian/drvo-opdrachten/week-3/led-driver/led_driver.o := \
   include/linux/projid.h \
   include/uapi/linux/quota.h \
   include/linux/nfs_fs_i.h \
-  include/linux/interrupt.h \
-    $(wildcard include/config/irq/forced/threading.h) \
-    $(wildcard include/config/generic/irq/probe.h) \
-    $(wildcard include/config/proc/fs.h) \
-    $(wildcard include/config/irq/timings.h) \
-  include/linux/irqreturn.h \
-  include/linux/irqnr.h \
-  include/uapi/linux/irqnr.h \
-  include/linux/hardirq.h \
-  include/linux/ftrace_irq.h \
-    $(wildcard include/config/ftrace/nmi/enter.h) \
-    $(wildcard include/config/hwlat/tracer.h) \
-  include/linux/vtime.h \
-    $(wildcard include/config/virt/cpu/accounting.h) \
-    $(wildcard include/config/irq/time/accounting.h) \
-  include/linux/context_tracking_state.h \
-    $(wildcard include/config/context/tracking.h) \
-  arch/arm/include/asm/hardirq.h \
-  arch/arm/include/asm/irq.h \
-    $(wildcard include/config/sparse/irq.h) \
-  include/linux/irq_cpustat.h \
-  arch/arm/include/asm/sections.h \
-  include/asm-generic/sections.h \
   include/linux/io.h \
     $(wildcard include/config/have/arch/huge/vmap.h) \
     $(wildcard include/config/has/ioport/map.h) \
