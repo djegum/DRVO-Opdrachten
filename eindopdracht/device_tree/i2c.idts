@@ -1,0 +1,25 @@
+# 1 "i2c.dts"
+# 1 "<built-in>"
+# 1 "<command-line>"
+# 1 "i2c.dts"
+/dts-v1/;
+/plugin/;
+
+/ {
+    compatible = "ti,beaglebone", "ti,beaglebone-black";
+
+    fragment@0 {
+        target = <&i2c2>;
+        __overlay__ {
+            status = "okay";
+
+            #address-cells = <1>;
+            #size-cells = <0>;
+
+            ard@40 {
+                reg = <0x40>;
+                compatible = "ard";
+            };
+        };
+    };
+};
