@@ -9,7 +9,6 @@
 
 static int my_i2c_probe(struct i2c_client *client, const struct i2c_device_id *id)
 {
-    // Device initialization and setup code goes here
     pr_info("Probing I2C device: %s with address 0x%02x\n", client->name, client->addr);
 
     uint16_t data = i2c_smbus_read_word_data(client, 0xE3);
@@ -17,16 +16,12 @@ static int my_i2c_probe(struct i2c_client *client, const struct i2c_device_id *i
     pr_info("data read: 0x%02x\n", data);
     pr_info("temprature is: %dC\n", value);
 
-    return 0; // Success
+    return 0;
 }
 
 static int my_i2c_remove(struct i2c_client *client)
 {
-    // Device cleanup code goes here
     pr_info("Removing I2C device: %s\n", client->name);
-
-    // ...
-
     return 0;
 }
 
@@ -65,6 +60,6 @@ static void __exit my_i2c_exit(void)
 module_init(my_i2c_init);
 module_exit(my_i2c_exit);
 
-MODULE_AUTHOR("Your Name");
-MODULE_DESCRIPTION("I2C driver for my device");
+MODULE_AUTHOR("Jochem");
+MODULE_DESCRIPTION("Dikke temp meter");
 MODULE_LICENSE("GPL");
